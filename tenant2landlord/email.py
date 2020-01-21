@@ -4,8 +4,8 @@ from emaillib import EMail
 from functoolsplus import coerce
 from notificationlib import get_email_func
 
-from tenant2tenant.config import CONFIG
-from tenant2tenant.orm import NotificationEmail
+from tenant2landlord.config import CONFIG
+from tenant2landlord.orm import NotificationEmail
 
 
 __all__ = ['email']

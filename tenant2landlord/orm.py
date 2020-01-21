@@ -13,8 +13,8 @@ from mdb import Address, Customer
 from notificationlib import get_orm_model
 from peeweeplus import MySQLDatabase, JSONModel
 
-from tenant2tenant import dom   # pylint: disable=E0611
-from tenant2tenant.config import CONFIG
+from tenant2landlord import dom   # pylint: disable=E0611
+from tenant2landlord.config import CONFIG
 
 
 __all__ = ['Configuration', 'TenantMessage', 'NotificationEmail']
