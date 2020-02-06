@@ -13,7 +13,6 @@ from mdb import Address, Customer
 from notificationlib import get_email_orm_model
 from peeweeplus import MySQLDatabase, JSONModel
 
-from tenant2landlord import dom   # pylint: disable=E0611
 from tenant2landlord.config import CONFIG
 
 
@@ -108,15 +107,6 @@ class TenantMessage(_Tenant2LandlordModel):
             json['address'] = self.address.to_json()
 
         return json
-
-    def to_dom(self):
-        """Returns the tenant message as XML DOM."""
-        xml = dom.TenantMessage(self.message)
-        xml.created = self.created
-        xml.released = self.released
-        xml.startDate = self.start_date
-        xml.endDate = self.end_date
-        return xml
 
 
 NotificationEmail = get_email_orm_model(_Tenant2LandlordModel)

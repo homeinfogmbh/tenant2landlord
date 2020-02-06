@@ -4,10 +4,8 @@ from flask import request
 
 from his import CUSTOMER, authenticated, authorized, Application
 from notificationlib import get_wsgi_funcs
-from previewlib import preview, DeploymentPreviewToken
-from wsgilib import JSON, XML
+from wsgilib import JSON
 
-from tenant2landlord.dom import tenant2landlord
 from tenant2landlord.messages import MESSAGE_TOGGLED
 from tenant2landlord.messages import MESSAGE_PATCHED
 from tenant2landlord.messages import MESSAGE_DELETED
@@ -148,18 +146,6 @@ def set_config():
 GET_EMAILS, SET_EMAILS = get_wsgi_funcs('tenant2landlord', NotificationEmail)
 
 
-@preview(DeploymentPreviewToken)
-def preview_deployment(deployment):
-    """Returns a preview of the respective tenant-to-landlord messages."""
-
-    xml = tenant2landlord()
-
-    for message in TenantMessage.for_deployment(deployment):
-        xml.message.append(message.to_dom())
-
-    return XML(xml)
-
-
 APPLICATION.add_routes((
     ('GET', '/message', list_messages),
     ('GET', '/message/<int:ident>', get_message),
@@ -169,6 +155,5 @@ APPLICATION.add_routes((
     ('GET', '/configuration', get_config),
     ('POST', '/configuration', set_config),
     ('GET', '/email', GET_EMAILS),
-    ('POST', '/email', SET_EMAILS),
-    ('GET', '/preview', preview_deployment)
+    ('POST', '/email', SET_EMAILS)
 ))
