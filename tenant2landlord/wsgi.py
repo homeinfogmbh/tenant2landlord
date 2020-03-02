@@ -20,9 +20,10 @@ __all__ = ['APPLICATION']
 
 APPLICATION = Application('Tenant-to-landlord', debug=True)
 ALLOWED_PATCH_FIELDS = ('startDate', 'endDate', 'released', 'message')
-SKIPPED_PATCH_FIELDS = set(
+SKIPPED_PATCH_FIELDS = {
     key for key, *_ in TenantMessage.get_json_fields()
-    if key not in ALLOWED_PATCH_FIELDS)
+    if key not in ALLOWED_PATCH_FIELDS
+}
 
 
 def _get_messages(customer, released):
