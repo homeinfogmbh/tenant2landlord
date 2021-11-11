@@ -1,18 +1,20 @@
 """Emailing of new tenant-to-tenant messages."""
 
+from typing import Iterator
+
 from emaillib import EMail
 from functoolsplus import coerce
 from notificationlib import get_email_func
 
 from tenant2landlord.config import CONFIG
-from tenant2landlord.orm import NotificationEmail
+from tenant2landlord.orm import NotificationEmail, TenantMessage
 
 
 __all__ = ['email']
 
 
 @coerce(frozenset)
-def get_emails(message):
+def get_emails(message: TenantMessage) -> Iterator[EMail]:
     """Yields notification emails."""
 
     for notification_email in NotificationEmail.select().where(

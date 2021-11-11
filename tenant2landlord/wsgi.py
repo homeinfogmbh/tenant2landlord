@@ -1,8 +1,12 @@
 """Authenticated and authorized HIS services."""
 
+from typing import Union
+
 from flask import request
+from peewee import ModelSelect
 
 from his import CUSTOMER, authenticated, authorized, Application
+from mdb import Customer
 from notificationlib import get_wsgi_funcs
 from wsgilib import JSON, JSONMessage
 
@@ -20,13 +24,13 @@ SKIPPED_PATCH_FIELDS = {
 }
 
 
-def _get_messages(customer):
+def _get_messages(customer: Union[Customer, int]) -> ModelSelect:
     """Yields the customer's tenant-to-landlord messages."""
 
     return TenantMessage.select().where(TenantMessage.customer == customer)
 
 
-def _get_message(ident):
+def _get_message(ident: int) -> TenantMessage:
     """Returns the respective message."""
 
     try:
@@ -40,7 +44,7 @@ def _get_message(ident):
 
 @authenticated
 @authorized('tenant2landlord')
-def list_messages():
+def list_messages() -> JSON:
     """Lists the tenant-to-landlord messages."""
 
     return JSON([message.to_json() for message in _get_messages(CUSTOMER.id)])
@@ -48,7 +52,7 @@ def list_messages():
 
 @authenticated
 @authorized('tenant2landlord')
-def get_message(ident):
+def get_message(ident: int) -> JSON:
     """Returns the respective message of the customer."""
 
     return JSON(_get_message(ident).to_json())
@@ -56,7 +60,7 @@ def get_message(ident):
 
 @authenticated
 @authorized('tenant2landlord')
-def toggle_message(ident):
+def toggle_message(ident: int) -> JSONMessage:
     """Toggles the respective message."""
 
     message = _get_message(ident)
@@ -68,7 +72,7 @@ def toggle_message(ident):
 
 @authenticated
 @authorized('tenant2landlord')
-def patch_message(ident):
+def patch_message(ident: int) -> JSONMessage:
     """Toggles the respective message."""
 
     message = _get_message(ident)
@@ -79,7 +83,7 @@ def patch_message(ident):
 
 @authenticated
 @authorized('tenant2landlord')
-def delete_message(ident):
+def delete_message(ident: int) -> JSONMessage:
     """Deletes the respective message."""
 
     message = _get_message(ident)
