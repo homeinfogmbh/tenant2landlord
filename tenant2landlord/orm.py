@@ -45,7 +45,7 @@ class TenantMessage(Tenant2LandlordModel):
 
     @classmethod
     def add(cls, customer: Union[Customer, int], address: Union[Address, int],
-            message: str):
+            message: str) -> TenantMessage:
         """Creates a new entry for the respective customer and address."""
         record = cls()
         record.customer = customer
