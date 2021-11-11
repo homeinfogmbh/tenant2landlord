@@ -4,53 +4,26 @@ from flask import request
 
 from his import CUSTOMER, authenticated, authorized, Application
 from notificationlib import get_wsgi_funcs
-from wsgilib import JSON
+from wsgilib import JSON, JSONMessage
 
-from tenant2landlord.messages import MESSAGE_TOGGLED
-from tenant2landlord.messages import MESSAGE_PATCHED
-from tenant2landlord.messages import MESSAGE_DELETED
-from tenant2landlord.messages import NO_SUCH_MESSAGE
-from tenant2landlord.messages import NO_SUCH_CONFIGURATION
-from tenant2landlord.messages import CONFIGURATION_SET
-from tenant2landlord.orm import Configuration, TenantMessage, NotificationEmail
+from tenant2landlord.orm import TenantMessage, NotificationEmail
 
 
 __all__ = ['APPLICATION']
 
 
 APPLICATION = Application('Tenant-to-landlord', debug=True)
-ALLOWED_PATCH_FIELDS = ('startDate', 'endDate', 'released', 'message')
+ALLOWED_PATCH_FIELDS = {'message', 'read'}
 SKIPPED_PATCH_FIELDS = {
     key for key, *_ in TenantMessage.get_json_fields()
     if key not in ALLOWED_PATCH_FIELDS
 }
 
 
-def _get_messages(customer, released):
+def _get_messages(customer):
     """Yields the customer's tenant-to-landlord messages."""
 
-    expression = TenantMessage.customer == customer
-
-    if released is not None:
-        expression &= TenantMessage.released == int(released)
-
-    return TenantMessage.select().where(expression)
-
-
-def _get_released():
-    """Returns the released flag."""
-
-    released = request.args.get('released')
-
-    if released is None:
-        return None
-
-    try:
-        released = int(released)
-    except ValueError:
-        return None
-
-    return bool(released)
+    return TenantMessage.select().where(TenantMessage.customer == customer)
 
 
 def _get_message(ident):
@@ -61,7 +34,8 @@ def _get_message(ident):
             (TenantMessage.id == ident)
             & (TenantMessage.customer == CUSTOMER.id))
     except TenantMessage.DoesNotExist:
-        raise NO_SUCH_MESSAGE
+        raise JSONMessage('The requested message does not exist.',
+                          status=404) from None
 
 
 @authenticated
@@ -69,8 +43,7 @@ def _get_message(ident):
 def list_messages():
     """Lists the tenant-to-landlord messages."""
 
-    return JSON([message.to_json() for message in _get_messages(
-        CUSTOMER.id, _get_released())])
+    return JSON([message.to_json() for message in _get_messages(CUSTOMER.id)])
 
 
 @authenticated
@@ -87,9 +60,10 @@ def toggle_message(ident):
     """Toggles the respective message."""
 
     message = _get_message(ident)
-    message.released = not message.released
+    message.read = not message.read
     message.save()
-    return MESSAGE_TOGGLED.update(released=message.released)
+    return JSONMessage('The message has been toggled.',
+                       released=message.released, status=200)
 
 
 @authenticated
@@ -100,7 +74,7 @@ def patch_message(ident):
     message = _get_message(ident)
     message.patch_json(request.json, skip=SKIPPED_PATCH_FIELDS)
     message.save()
-    return MESSAGE_PATCHED
+    return JSONMessage('The message has been updated.', status=200)
 
 
 @authenticated
@@ -110,38 +84,7 @@ def delete_message(ident):
 
     message = _get_message(ident)
     message.delete_instance()
-    return MESSAGE_DELETED
-
-
-@authenticated
-@authorized('tenant2landlord')
-def get_config():
-    """Returns the configuration of the respective customer."""
-    try:
-        configuration = Configuration.get(
-            Configuration.customer == CUSTOMER.id)
-    except Configuration.DoesNotExist:
-        return NO_SUCH_CONFIGURATION
-
-    return JSON(configuration.to_json())
-
-
-@authenticated
-@authorized('tenant2landlord')
-def set_config():
-    """Sets the configuration for the respective customer."""
-    try:
-        configuration = Configuration.get(
-            Configuration.customer == CUSTOMER.id)
-    except Configuration.DoesNotExist:
-        configuration = Configuration.from_json(request.json)
-        configuration.customer = CUSTOMER.id
-        configuration.save()
-    else:
-        configuration.patch_json(request.json)
-        configuration.save()
-
-    return CONFIGURATION_SET
+    return JSONMessage('The message has been deleted.', status=200)
 
 
 GET_EMAILS, SET_EMAILS = get_wsgi_funcs('tenant2landlord', NotificationEmail)
@@ -153,8 +96,6 @@ APPLICATION.add_routes((
     ('PUT', '/message/<int:ident>', toggle_message),
     ('PATCH', '/message/<int:ident>', patch_message),
     ('DELETE', '/message/<int:ident>', delete_message),
-    ('GET', '/configuration', get_config),
-    ('POST', '/configuration', set_config),
     ('GET', '/email', GET_EMAILS),
     ('POST', '/email', SET_EMAILS)
 ))
