@@ -66,8 +66,8 @@ def toggle_message(ident: int) -> JSONMessage:
     message = _get_message(ident)
     message.read = not message.read
     message.save()
-    return JSONMessage('The message has been toggled.',
-                       released=message.released, status=200)
+    return JSONMessage('The message has been toggled.', read=message.read,
+                       status=200)
 
 
 @authenticated
