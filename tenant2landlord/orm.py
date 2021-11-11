@@ -23,7 +23,7 @@ __all__ = ['TenantMessage', 'NotificationEmail']
 DATABASE = MySQLDatabase.from_config(CONFIG['db'])
 
 
-class _Tenant2LandlordModel(JSONModel):     # pylint: disable=R0903
+class Tenant2LandlordModel(JSONModel):  # pylint: disable=R0903
     """Basic model for this database."""
 
     class Meta:     # pylint: disable=C0111,R0903
@@ -31,7 +31,7 @@ class _Tenant2LandlordModel(JSONModel):     # pylint: disable=R0903
         schema = database.database
 
 
-class TenantMessage(_Tenant2LandlordModel):
+class TenantMessage(Tenant2LandlordModel):
     """Tenant to landlord messages."""
 
     class Meta:     # pylint: disable=C0111,R0903
@@ -69,4 +69,4 @@ class TenantMessage(_Tenant2LandlordModel):
         return json
 
 
-NotificationEmail = get_email_orm_model(_Tenant2LandlordModel)
+NotificationEmail = get_email_orm_model(Tenant2LandlordModel)
