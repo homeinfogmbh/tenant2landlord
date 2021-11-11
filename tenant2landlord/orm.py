@@ -1,4 +1,4 @@
-"""Tenant-to-tenant messaging ORM models."""
+"""Tenant-to-landlord messaging ORM models."""
 
 from __future__ import annotations
 from datetime import datetime

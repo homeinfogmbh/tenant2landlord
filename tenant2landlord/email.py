@@ -1,4 +1,4 @@
-"""Emailing of new tenant-to-tenant messages."""
+"""Emailing of new tenant-to-landlord messages."""
 
 from typing import Iterator
 
