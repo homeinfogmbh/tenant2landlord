@@ -12,15 +12,13 @@ from peewee import TextField
 from hwdb import Deployment
 from mdb import Address, Customer
 from notificationlib import get_email_orm_model
-from peeweeplus import MySQLDatabase, JSONModel
-
-from tenant2landlord.config import CONFIG
+from peeweeplus import MySQLDatabaseProxy, JSONModel
 
 
 __all__ = ['TenantMessage', 'NotificationEmail']
 
 
-DATABASE = MySQLDatabase.from_config(CONFIG['db'])
+DATABASE = MySQLDatabaseProxy('tenant2landlord')
 
 
 class Tenant2LandlordModel(JSONModel):  # pylint: disable=R0903
