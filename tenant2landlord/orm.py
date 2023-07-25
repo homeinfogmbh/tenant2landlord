@@ -15,16 +15,16 @@ from notificationlib import get_email_orm_model
 from peeweeplus import MySQLDatabaseProxy, JSONModel
 
 
-__all__ = ['TenantMessage', 'NotificationEmail']
+__all__ = ["TenantMessage", "NotificationEmail"]
 
 
-DATABASE = MySQLDatabaseProxy('tenant2landlord')
+DATABASE = MySQLDatabaseProxy("tenant2landlord")
 
 
 class Tenant2LandlordModel(JSONModel):  # pylint: disable=R0903
     """Basic model for this database."""
 
-    class Meta:     # pylint: disable=C0111,R0903
+    class Meta:  # pylint: disable=C0111,R0903
         database = DATABASE
         schema = database.database
 
@@ -32,18 +32,19 @@ class Tenant2LandlordModel(JSONModel):  # pylint: disable=R0903
 class TenantMessage(Tenant2LandlordModel):
     """Tenant to landlord messages."""
 
-    class Meta:     # pylint: disable=C0111,R0903
-        table_name = 'tenant_message'
+    class Meta:  # pylint: disable=C0111,R0903
+        table_name = "tenant_message"
 
-    customer = ForeignKeyField(Customer, column_name='customer')
-    address = ForeignKeyField(Address, column_name='address')
+    customer = ForeignKeyField(Customer, column_name="customer")
+    address = ForeignKeyField(Address, column_name="address")
     message = TextField()
     created = DateTimeField(default=datetime.now)
     read = BooleanField(default=False)
 
     @classmethod
-    def add(cls, customer: Union[Customer, int], address: Union[Address, int],
-            message: str) -> TenantMessage:
+    def add(
+        cls, customer: Union[Customer, int], address: Union[Address, int], message: str
+    ) -> TenantMessage:
         """Creates a new entry for the respective customer and address."""
         record = cls()
         record.customer = customer
@@ -52,8 +53,9 @@ class TenantMessage(Tenant2LandlordModel):
         return record
 
     @classmethod
-    def from_deployment(cls, deployment: Union[Deployment, int],
-                        message: str) -> TenantMessage:
+    def from_deployment(
+        cls, deployment: Union[Deployment, int], message: str
+    ) -> TenantMessage:
         """Creates a new entry for the respective deployment."""
         return cls.add(deployment.customer, deployment.address, message)
 
@@ -62,7 +64,7 @@ class TenantMessage(Tenant2LandlordModel):
         json = super().to_json(**kwargs)
 
         if address:
-            json['address'] = self.address.to_json()
+            json["address"] = self.address.to_json()
 
         return json
 

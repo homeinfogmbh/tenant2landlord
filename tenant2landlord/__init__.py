@@ -5,4 +5,4 @@ from tenant2landlord.orm import TenantMessage
 from tenant2landlord.wsgi import APPLICATION
 
 
-__all__ = ['APPLICATION', 'email', 'TenantMessage']
+__all__ = ["APPLICATION", "email", "TenantMessage"]

@@ -10,7 +10,7 @@ from tenant2landlord.config import get_config
 from tenant2landlord.orm import NotificationEmail, TenantMessage
 
 
-__all__ = ['email']
+__all__ = ["email"]
 
 
 @coerce(frozenset)
@@ -20,12 +20,12 @@ def get_emails(message: TenantMessage) -> Iterator[EMail]:
     config = get_config()
 
     for notification_email in NotificationEmail.select().where(
-            NotificationEmail.customer == message.customer):
+        NotificationEmail.customer == message.customer
+    ):
         recipient = notification_email.email
-        subject = notification_email.subject or config.get(
-            'email', 'subject')
+        subject = notification_email.subject or config.get("email", "subject")
         subject = subject.format(address=message.address)
-        sender = config.get('email', 'from')
+        sender = config.get("email", "from")
         html = message.message if notification_email.html else None
         plain = None if notification_email.html else message.message
         yield EMail(subject, sender, recipient, plain=plain, html=html)
